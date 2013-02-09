@@ -1,0 +1,165 @@
+﻿<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+/* * {
+	margin:0;
+	padding:0;
+	} */
+ 
+html, body {
+	/*font-family: courier;*/
+	height:100%;
+	/* text-shadow: white 0px 0px 1px; */
+	}
+
+p {
+	margin: 5px;
+}
+
+body {
+	/* background-color:#fc6; */
+	/* color:#630; */
+	text-align:center; /* horizontal centering for IE Win quirks */
+	}
+ 
+#distance { 
+	width:1px;
+	height:50%;
+	/* background-color:#fc6; */
+	margin-bottom: -11em; /* half of container's height */
+	float:left;
+	}
+
+#container {
+	margin: auto;
+	position: relative; /* puts container in front of distance */
+	text-align: center;
+	height: auto;
+	width: auto;
+	clear: left;
+	/*border:1px solid #c93;*/
+	}
+
+#info {
+	margin: 0 auto;
+	font-family: Verdana;
+	/* font-style: italic; */
+	/* font-weight: bold; */
+	text-align: left;
+	/* color: maroon; */
+	max-width: 600px;
+	display: inline-block;
+    font-size: 16;
+}
+
+#boxes {
+margin: 15px;
+}
+#boxes span
+{
+border-style:solid;
+border-width:1px;
+background-color:#b0c4de;
+margin: 5px;
+padding: 2px;
+font-size: 24;
+}
+</style>
+</head>
+<script language="javascript">
+var N = 5;
+var p = [];
+var count = 0;
+
+function clickbox(id) {
+	count += 1;
+	if (p[id] == 1.0) {
+		alert('Вы поймали мышь!\nХодов: ' + count + '\nОптимальная стратегия: 6 ходов');
+		for (i = 0; i < N; i++) {
+			p[i] = 1.0 / N;
+		}
+		count = 0;
+		refresh_boxes();
+		return;
+	} else {
+		p[id] = 0.0;
+	}
+	
+	var sum = 0.0;
+	for (i = 0; i < N; i++) {
+		sum += p[i];
+	}
+	
+	function p_move(id) {
+		if (id == 0 || id == N - 1)
+			return p[id];
+		return p[id] * 0.5;
+	}
+	var q = [];
+	q[1] = p[0];
+	q[N - 2] = p[N-1];
+	for (i = 0; i < N; i++) {
+		q[i] = 0.0;
+		if (i > 0) {
+			q[i] += p_move(i - 1) / sum;
+		}
+		if (i < N - 1) {
+			q[i] += p_move(i + 1) / sum;
+		}
+	}
+	
+	for (i = 0; i < N; i++) {
+		p[i] = q[i];
+	}
+	refresh_boxes();
+}
+
+function refresh_boxes() {
+	for (i = 0; i < N; i++) {
+		box = document.getElementById('box' + i);
+		box.innerText = p[i].toFixed(3);
+	}
+}
+
+function init() {
+	content = '';
+	for (i = 0; i < N; i++) {
+		p[i] = 1.0 / N;
+		content += '<span id="box' + i + '" onclick="clickbox(' + i +');"></span>';
+	}
+	item = document.getElementById("boxes");
+	item.innerHTML = content;
+	refresh_boxes();
+}
+
+</script>
+
+<body onload="init();">
+
+<div id="distance"></div> 
+<div id="container"> 
+<div id="info">
+<!---->
+
+<h1 align="center">Игра «кошки-мышки»<br><font size="-2">По мотивам <a href="http://haskell98.blogspot.se/2013/02/2013.html">конкурса ФП</a></font></h1>
+<p>В одной из пяти ячеек находится мышь, но кошка не знает, в какой именно. Игра состоит из набора ходов до победы кошки. Один ход в игре описывается двумя полуходами:
+<ol>
+<li>Кошка выбирает ячейку. Если в ячейке оказывается мышь, кошка выграла.</li>
+<li>Если нет - то мышь перебегает в соседнюю ячейку.</li>
+</ol>
+</p>
+<p><strong>Задача</strong>: поймать мышь за минимальное число ходов.</p>
+<div id="boxes" align="center"></div>
+<p align="center" style="font-size:12;color:gray;">Число внутри ячейки - вероятность того что в ней находится мышь</p>
+
+<!---->
+
+
+</div>
+</div> 
+
+
+
+</body>
+</html>
