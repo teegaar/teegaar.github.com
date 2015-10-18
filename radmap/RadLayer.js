@@ -119,7 +119,7 @@ L.RadLayer = (L.Layer ? L.Layer : L.Class).extend({
             max = this.options.max === undefined ? 1 : this.options.max,
             maxZoom = this.options.maxZoom === undefined ? this._map.getMaxZoom() : this.options.maxZoom,
             v = 1 / Math.pow(2, Math.max(0, Math.min(maxZoom - this._map.getZoom(), 12))),
-            cellSize = r / 2,
+            cellSize = r / 4,
             grid = [],
             panePos = this._map._getMapPanePos(),
             offsetX = panePos.x % cellSize,
@@ -194,6 +194,7 @@ L.RadLayer = (L.Layer ? L.Layer : L.Class).extend({
             var model = "exponential";
             var sigma2 = 0, alpha = 100;
             var fitModel = kriging.train(data.t, data.x, data.y, model, sigma2, alpha);
+            this._model = fitModel;
             //console.timeEnd('kriging');
 
             console.time('plot');
@@ -213,6 +214,7 @@ L.RadLayer = (L.Layer ? L.Layer : L.Class).extend({
                     img.data[i + 0] = this._grad[t * 4];
                     img.data[i + 1] = this._grad[t * 4 + 1];
                     img.data[i + 2] = this._grad[t * 4 + 2];
+                    img.data[i + 3] *= 0.8;
                 }
             }
             ctx.putImageData(img, 0, 0);
@@ -263,15 +265,15 @@ L.RadLayer = (L.Layer ? L.Layer : L.Class).extend({
     _createCircle: function() {
         var circle = document.createElement('canvas');
 
-        var r = 16,
-            blur = 16,
+        var r = this.options.radius || 32,
+            blur = this.options.blur || 32,
             ctx = circle.getContext('2d'),
             r2 = r + blur;
 
         circle.width = circle.height = r2 * 2;
 
         ctx.shadowOffsetX = 200;//ctx.shadowOffsetY = 200;
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = blur;
         ctx.shadowColor = 'black';
 
         ctx.beginPath();
@@ -295,7 +297,7 @@ L.RadLayer = (L.Layer ? L.Layer : L.Class).extend({
         canvas.width = 1;
         canvas.height = 256;
 
-        var grad = {
+        var grad = this.options.grad || {
             0.4: 'blue',
             0.6: 'cyan',
             0.7: 'lime',
@@ -311,6 +313,30 @@ L.RadLayer = (L.Layer ? L.Layer : L.Class).extend({
         ctx.fillRect(0, 0, 1, 256);
 
         this._grad = ctx.getImageData(0, 0, 1, 256).data;
+    },
+
+    onMapClick: function (e) {
+        var popup = L.popup();
+
+        console.log(e.target);
+
+        var cellSize = e.target._r / 4,
+            panePos = e.target._map._getMapPanePos(),
+            offsetX = panePos.x % cellSize,
+            offsetY = panePos.y % cellSize;
+
+            p = this._map.latLngToContainerPoint(e.latlng);
+            x = Math.floor((p.x - offsetX) / cellSize) + 2;
+            y = Math.floor((p.y - offsetY) / cellSize) + 2;
+
+        if (this._model) {
+           var value = kriging.predict(x, y, this._model);
+
+            popup
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString() + "<br>Radiation: " + value)
+                .openOn(map);
+        }
     },
 
     _animateZoom: function (e) {
