@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="300" height="300" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script>
+
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+var grd = ctx.createRadialGradient(50, 50, 5, 50, 50, 50);
+grd.addColorStop(0, "rgba(255, 0, 0, 1)");
+grd.addColorStop(0.8, "rgba(250, 0, 0, 1)");
+grd.addColorStop(1, "rgba(0, 0, 0, 0.5)");
+ctx.fillStyle = grd;
+
+var circle = function() {
+    circle = document.createElement('canvas');
+
+    var r = 16,
+        blur = 16,
+        c = circle.getContext('2d'),
+        r2 = r + blur;
+
+        circle.width = circle.height = r2 * 2;
+
+        c.shadowOffsetX = 200;//ctx.shadowOffsetY = 200;
+        c.shadowBlur = 16;
+        c.shadowColor = 'black';
+
+        c.beginPath();
+        c.arc(r2 - 200, r2, r, 0, Math.PI * 2);
+        c.closePath();
+        c.fillStyle = 'black';
+        c.fill();
+        return circle;
+}();
+ctx.drawImage(circle, -32, -32);
+ctx.drawImage(circle, 10, 10);
+ctx.drawImage(circle, 30, 30);
+ctx.drawImage(circle, 60, 60);
+ctx.drawImage(circle, 70, 50);
+
+ctx.globalAlpha = 0.5;
+ctx.drawImage(circle, 110, 10);
+ctx.drawImage(circle, 130, 30);
+ctx.drawImage(circle, 160, 60);
+ctx.drawImage(circle, 170, 50);
+
+ctx.globalAlpha = 1.0;
+ctx.globalCompositeOperation = 'lighter';
+ctx.drawImage(circle, 10, 110);
+ctx.drawImage(circle, 30, 130);
+ctx.drawImage(circle, 60, 160);
+ctx.drawImage(circle, 70, 150);
+
+ctx.globalAlpha = 0.9;
+ctx.globalCompositeOperation = 'darken';
+ctx.drawImage(circle, 110, 110);
+ctx.drawImage(circle, 130, 130);
+ctx.drawImage(circle, 160, 160);
+ctx.drawImage(circle, 170, 150);
+
+</script>
+
+</body>
+</html>
