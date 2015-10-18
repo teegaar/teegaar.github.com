@@ -245,7 +245,7 @@ L.RadLayer = (L.Layer ? L.Layer : L.Class).extend({
             for (var i = 0, len = img.data.length, p; i < len; i += 4) {
                 var x = i / 4 % width;
                 var y = i / 4 / width;
-                if (img.data[i + 3] >= 0) {
+                if (img.data[i + 3] > 0) {
                     var t = Math.round(avg / max * 255);
                     img.data[i + 0] = this._grad[t * 4];
                     img.data[i + 1] = this._grad[t * 4 + 1];
